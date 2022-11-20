@@ -1,54 +1,90 @@
-const http = require("http");
-const fs = require("fs");
-const args = require('minimist')(process.argv.slice(2));
-
-let homeContent = "";
-let projectContent = "";
-let registrationContent = "";
-
-fs.readFile("home.html", (err, home) => {
-  if (err) {
-    throw err;
-  }
-  homeContent = home;
-});
-
-fs.readFile("project.html", (err, project) => {
-  if (err) {
-    throw err;
-  }
-  projectContent = project;
-});
-
-fs.readFile("registration.html", (err, registration) => {
-  if (err) {
-    throw err;
-  }
-  registrationContent = registration;
-});
-
-fs.readFile("home.html", (err, home) => {
-  if (err) {
-    throw err;
-  }
-  http
-  .createServer((request, response) => {
-    let url = request.url;
-    response.writeHeader(200, { "Content-Type": "text/html" });
-    switch (url) {
-      case "/project":
-        response.write(projectContent);
-        response.end();
-        break;
-      case "/registration":
-        response.write(registrationContent);
-        response.end();
-        break;
-      default:
-        response.write(homeContent);
-        response.end();
-        break;
-    }
-  })
-  .listen(args.port);
-}); 
+const todoList = () => {
+    all = [];
+    const add = (todoItem) => {
+      all.push(todoItem);
+    };
+    const markAsComplete = (index) => {
+      all[index].completed = true;
+    };
+  
+    const overdue = () => {
+      let dateToday = new Date();
+      const today = formattedDate(dateToday);
+      return all.filter((todo) => {
+        return todo.dueDate < today;
+      });
+    };
+  
+    const dueToday = () => {
+      let dateToday = new Date();
+      const today = formattedDate(dateToday);
+      return all.filter((todo) => {
+        return todo.dueDate === today;
+      });
+    };
+  
+    const dueLater = () => {
+      let dateToday = new Date();
+      const today = formattedDate(dateToday);
+      return all.filter((todo) => {
+        return todo.dueDate > today;
+      });
+    };
+  
+    const toDisplayableList = (list) => {
+      let dateToday = new Date();
+      const today = formattedDate(dateToday);
+      return list
+        .map((todo) => {
+          return `[${todo.completed ? "x" : " "}] ${todo.title} ${
+            todo.dueDate !== today ? todo.dueDate : " "
+          }`;
+        })
+        .join("\n");
+    };
+  
+    return {
+      all,
+      add,
+      markAsComplete,
+      overdue,
+      dueToday,
+      dueLater,
+      toDisplayableList,
+    };
+  };
+  
+  
+  const todos = todoList();
+  
+  const formattedDate = (d) => {
+    return d.toISOString().split("T")[0];
+  };
+  
+  var dateToday = new Date();
+  const today = formattedDate(dateToday);
+  const yesterday = formattedDate(
+    new Date(new Date().setDate(dateToday.getDate() - 1))
+  );
+  const tomorrow = formattedDate(
+    new Date(new Date().setDate(dateToday.getDate() + 1))
+  );
+  
+  todos.add({ title: "Submit assignment", dueDate: yesterday, completed: false });
+  todos.add({ title: "Pay rent", dueDate: today, completed: true });
+  todos.add({ title: "Service Vehicle", dueDate: today, completed: false });
+  todos.add({ title: "File taxes", dueDate: tomorrow, completed: false });
+  todos.add({ title: "Pay electric bill", dueDate: tomorrow, completed: false });
+  
+  console.log("My Todo-list\n\n");
+  
+  console.log("Overdue");
+  var overdues = todos.overdue();
+  var formattedOverdues = todos.toDisplayableList(overdues);
+  console.log(formattedOverdues);
+  console.log("\n\n");
+  
+  console.log("Due Today");
+  let itemsDueToday = todos.dueToday();
+  let formattedItemsDueToday = todos.toDisplayableList(itemsDueToday);
+  console.log(formattedItemsDueToday);
