@@ -1,11 +1,9 @@
 {
-  "name": "l3",
-  "version": "1.0.0",
-  "description": "to-do-application",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+
+    "jest": "^29.2.1"
   },
-  "author": "Shiva",
-  "license": "ISC"
+  "scripts": {
+    "test": "jest --json --outputFile=results.json"
+  }
 }
